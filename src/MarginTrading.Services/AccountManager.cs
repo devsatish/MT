@@ -67,7 +67,18 @@ namespace MarginTrading.Services
 
         public async Task UpdateBalanceAsync(string clientId, string accountId, double amount, AccountHistoryType historyType, string comment)
         {
-            var updatedAccount = await _repository.UpdateBalanceAsync(clientId, accountId, amount);
+            var changeLoan = false;
+
+            if (historyType == AccountHistoryType.Deposit || historyType == AccountHistoryType.Withdraw)
+            {
+                var account = await _repository.GetAsync(clientId, accountId);
+                if (account.FundsTransfer == FundsTransferType.Loan)
+                {
+                    changeLoan = true;
+                }
+            }
+
+            var updatedAccount = await _repository.UpdateBalanceAsync(clientId, accountId, amount, changeLoan);
             _accountsCacheService.UpdateBalance(updatedAccount);
             
             _clientNotifyService.NotifyAccountChanged(updatedAccount);
