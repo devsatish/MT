@@ -80,7 +80,7 @@ namespace MarginTrading.Core
         Task<IEnumerable<IMarginTradingAccount>> GetAllAsync(string clientId = null);
         Task<IMarginTradingAccount> GetAsync(string clientId, string accountId);
         Task<IMarginTradingAccount> GetAsync(string accountId);
-        Task<MarginTradingAccount> UpdateBalanceAsync(string clientId, string accountId, double amount);
+        Task<MarginTradingAccount> UpdateBalanceAsync(string clientId, string accountId, double amount, bool changeLoan);
         Task<bool> UpdateTradingConditionIdAsync(string accountId, string tradingConditionId);
         Task AddAsync(MarginTradingAccount account);
         Task DeleteAsync(string clientId, string accountId);

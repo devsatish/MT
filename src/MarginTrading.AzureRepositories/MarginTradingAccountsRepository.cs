@@ -64,15 +64,19 @@ namespace MarginTrading.AzureRepositories
             return entities.Select(MarginTradingAccount.Create);
         }
 
-        public async Task<MarginTradingAccount> UpdateBalanceAsync(string clientId, string accountId, double amount)
+        public async Task<MarginTradingAccount> UpdateBalanceAsync(string clientId, string accountId, double amount, bool changeLoan)
         {
             var account = await _tableStorage.GetDataAsync(MarginTradingAccountEntity.GeneratePartitionKey(clientId), MarginTradingAccountEntity.GenerateRowKey(accountId));
 
             if (account != null)
             {
                 account.Balance += amount;
-                if (account.FundsTransfer == FundsTransferType.Loan.ToString())
-                    account.Loan += amount;
+                if (changeLoan)
+                {
+                    //loan can not be negative
+                    var loan = account.Loan + amount;
+                    account.Loan = loan >= 0 ? loan : 0;
+                }
                 await _tableStorage.InsertOrMergeAsync(account);
                 return MarginTradingAccount.Create(account);
             }

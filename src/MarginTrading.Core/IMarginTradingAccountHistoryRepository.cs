@@ -57,7 +57,6 @@ namespace MarginTrading.Core
     public interface IMarginTradingAccountHistoryRepository
     {
         Task AddAsync(IMarginTradingAccountHistory accountHistory);
-        Task AddAsync(string accountId, string clientId, double amount, double balance, double loan, AccountHistoryType type, string comment = null);
         Task<IEnumerable<IMarginTradingAccountHistory>> GetAsync(string[] accountIds, DateTime? from, DateTime? to);
     }
 }

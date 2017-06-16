@@ -48,6 +48,7 @@ namespace MarginTrading.AzureRepositories
             };
         }
     }
+
     public class MarginTradingAccountHistoryRepository : IMarginTradingAccountHistoryRepository
     {
         private readonly INoSQLTableStorage<MarginTradingAccountHistoryEntity> _tableStorage;
@@ -62,28 +63,13 @@ namespace MarginTrading.AzureRepositories
             await _tableStorage.InsertOrReplaceAsync(MarginTradingAccountHistoryEntity.Create(accountHistory));
         }
 
-        public async Task<IEnumerable<IMarginTradingAccountHistory>> GetAsync(string[] accountIds, DateTime? from, DateTime? to)
+        public async Task<IEnumerable<IMarginTradingAccountHistory>> GetAsync(string[] accountIds, DateTime? from,
+            DateTime? to)
         {
-            var entities = await _tableStorage.GetDataAsync(entity => accountIds.Contains(entity.AccountId) && (entity.Date >= from || from == null) && (entity.Date <= to || to == null));
+            var entities = await _tableStorage.GetDataAsync(
+                entity => accountIds.Contains(entity.AccountId) && (entity.Date >= from || from == null) &&
+                          (entity.Date <= to || to == null));
             return entities.Select(MarginTradingAccountHistory.Create).OrderByDescending(item => item.Date);
-        }
-
-        public async Task AddAsync(string accountId, string clientId, double amount, double balance, double loan, AccountHistoryType type, string comment = null)
-        {
-            var entity = new MarginTradingAccountHistoryEntity
-            {
-                PartitionKey = MarginTradingAccountHistoryEntity.GeneratePartitionKey(accountId),
-                RowKey = MarginTradingAccountHistoryEntity.GenerateRowKey(Guid.NewGuid().ToString("N")),
-                Amount = amount,
-                Balance = balance,
-                Loan = loan,
-                ClientId = clientId,
-                Comment = comment,
-                Type = type.ToString(),
-                Date = DateTime.UtcNow
-            };
-
-            await _tableStorage.InsertOrReplaceAsync(entity);
         }
     }
 }

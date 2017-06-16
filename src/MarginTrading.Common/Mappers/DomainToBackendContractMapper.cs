@@ -95,6 +95,7 @@ namespace MarginTrading.Common.Mappers
                 ClientId = src.ClientId,
                 Amount = src.Amount,
                 Balance = src.Balance,
+                Loan = src.Loan,
                 Comment = src.Comment,
                 Type = src.Type
             };
