@@ -40,6 +40,7 @@ namespace MarginTrading.Backend.Models
     {
         public string ClientId { get; set; }
         public string TradingConditionsId { get; set; }
+        public bool UseLoan { get; set; }
     }
 
     public class InitAccountsResponse

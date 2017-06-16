@@ -83,7 +83,7 @@ namespace MarginTrading.Backend.Controllers
 
             if (accounts.Length == 0 && !_marginSettings.IsLive)
             {
-                accounts = await _accountManager.CreateDefaultAccounts(request.ClientId);
+                accounts = await _accountManager.CreateDefaultAccounts(request.ClientId, FundsTransferType.Direct);
             }
 
             if (accounts.Length == 0)
@@ -169,23 +169,6 @@ namespace MarginTrading.Backend.Controllers
         #endregion
 
         #region Account
-
-        [Route("account.setActive")]
-        [HttpPost]
-        public async Task<MtBackendResponse<bool>> SetActiveAccount([FromBody]SetActiveAccountBackendRequest request)
-        {
-            await _accountsRepository.SetActiveAsync(request.ClientId, request.AccountId);
-            var account = _accountsCacheService.SetActive(request.ClientId, request.AccountId);
-
-            _clientNotifyService.NotifyAccountChanged(account);
-
-            var result = new MtBackendResponse<bool> { Result = true };
-
-            _consoleWriter.WriteLine($"action account.setActive for clientId = {request.ClientId}, accountId = {request.AccountId}");
-            _operationsLogService.AddLog("action account.setActive", request.ClientId, request.AccountId, request.ToJson(), result.ToJson());
-
-            return result;
-        }
 
         [Route("account.history")]
         [HttpPost]

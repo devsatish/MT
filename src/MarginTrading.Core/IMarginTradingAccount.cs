@@ -10,8 +10,15 @@ namespace MarginTrading.Core
         string TradingConditionId { get; }
         string ClientId { get; }
         string BaseAssetId { get; }
-        double Balance { get; set; }
-        bool IsCurrent { get; }
+        double Balance { get; }
+        double Loan { get; }
+        FundsTransferType FundsTransfer { get; }
+    }
+
+    public enum FundsTransferType
+    {
+        Direct,
+        Loan
     }
 
     public class MarginTradingAccount : IMarginTradingAccount, IComparable<MarginTradingAccount>
@@ -21,7 +28,8 @@ namespace MarginTrading.Core
         public string TradingConditionId { get; set; }
         public string BaseAssetId { get; set; }
         public double Balance { get; set; }
-        public bool IsCurrent { get; set; }
+        public double Loan { get; set; }
+        public FundsTransferType FundsTransfer { get; set; }
        
         internal AccountFpl AccountFpl;
 
@@ -39,7 +47,8 @@ namespace MarginTrading.Core
                 ClientId = src.ClientId,
                 BaseAssetId = src.BaseAssetId,
                 Balance = src.Balance,
-                IsCurrent = src.IsCurrent,
+                Loan = src.Loan,
+                FundsTransfer = src.FundsTransfer,
                 AccountFpl = accountFpl ?? new AccountFpl()
             };
         }
@@ -74,8 +83,7 @@ namespace MarginTrading.Core
         Task<MarginTradingAccount> UpdateBalanceAsync(string clientId, string accountId, double amount);
         Task<bool> UpdateTradingConditionIdAsync(string accountId, string tradingConditionId);
         Task AddAsync(MarginTradingAccount account);
-        Task<IMarginTradingAccount> SetActiveAsync(string clientId, string accountId);
-        Task DeleteAndSetActiveIfNeededAsync(string clientId, string accountId);
+        Task DeleteAsync(string clientId, string accountId);
     }
 
     public static class MarginTradingAccountExtensions

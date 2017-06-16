@@ -72,12 +72,12 @@ namespace MarginTrading.Services
             
             _clientNotifyService.NotifyAccountChanged(updatedAccount);
 
-            await _rabbitMqNotifyService.AccountHistory(accountId, clientId, amount, updatedAccount.Balance, historyType, comment);
+            await _rabbitMqNotifyService.AccountHistory(accountId, clientId, amount, updatedAccount.Balance, updatedAccount.Loan, historyType, comment);
         }
 
         public async Task DeleteAccountAsync(string clientId, string accountId)
         {
-            await _repository.DeleteAndSetActiveIfNeededAsync(clientId, accountId);
+            await _repository.DeleteAsync(clientId, accountId);
             await UpdateAccountsCacheAsync(clientId);
         }
 
@@ -93,14 +93,14 @@ namespace MarginTrading.Services
                 "Initial deposit");
         }
 
-        public async Task AddAccountAsync(string clientId, string baseAssetId, string tradingConditionId)
+        public async Task AddAccountAsync(string clientId, string baseAssetId, string tradingConditionId, FundsTransferType fundsTransfer)
         {
-            var account = CreateAccount(clientId, baseAssetId, tradingConditionId);
+            var account = CreateAccount(clientId, baseAssetId, tradingConditionId, fundsTransfer);
             await _repository.AddAsync(account);
             await UpdateAccountsCacheAsync(account.ClientId);
         }
 
-        public async Task<MarginTradingAccount[]> CreateDefaultAccounts(string clientId, string tradingConditionsId = null)
+        public async Task<MarginTradingAccount[]> CreateDefaultAccounts(string clientId, FundsTransferType fundsTransfer, string tradingConditionsId = null)
         {
             var existingAccounts = (await _accountsRepository.GetAllAsync(clientId)).ToList();
 
@@ -122,7 +122,7 @@ namespace MarginTrading.Services
             {
                 try
                 {
-                    var account = CreateAccount(clientId, baseAsset, tradingConditionsId);
+                    var account = CreateAccount(clientId, baseAsset, tradingConditionsId, fundsTransfer);
                     await _repository.AddAsync(account);
                     newAccounts.Add(account);
                 }
@@ -172,11 +172,10 @@ namespace MarginTrading.Services
             }
         }
 
-        private MarginTradingAccount CreateAccount(string clientId, string baseAssetId, string tradingConditionId)
+        private MarginTradingAccount CreateAccount(string clientId, string baseAssetId, string tradingConditionId, FundsTransferType fundsTransfer)
         {
             var id = $"{(_marginSettings.IsLive ? string.Empty : _marginSettings.DemoAccountIdPrefix)}{Guid.NewGuid():N}";
             var initialBalance = _marginSettings.IsLive ? 0 : LykkeConstants.DefaultDemoBalance;
-            var isCurrent = baseAssetId == LykkeConstants.DefaultBaseAsset;
 
             return new MarginTradingAccount
             {
@@ -184,7 +183,7 @@ namespace MarginTrading.Services
                 BaseAssetId = baseAssetId,
                 ClientId = clientId,
                 Balance = initialBalance,
-                IsCurrent = isCurrent,
+                FundsTransfer = fundsTransfer,
                 TradingConditionId = tradingConditionId
             };
         }

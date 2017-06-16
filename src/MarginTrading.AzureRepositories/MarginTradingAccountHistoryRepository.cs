@@ -17,6 +17,7 @@ namespace MarginTrading.AzureRepositories
         public string ClientId { get; set; }
         public double Amount { get; set; }
         public double Balance { get; set; }
+        public double Loan { get; set; }
         public string Comment { get; set; }
         public string Type { get; set; }
         AccountHistoryType IMarginTradingAccountHistory.Type => Type.ParseEnum(AccountHistoryType.OrderClosed);
@@ -41,6 +42,7 @@ namespace MarginTrading.AzureRepositories
                 ClientId = src.ClientId,
                 Amount = src.Amount,
                 Balance = src.Balance,
+                Loan = src.Loan,
                 Comment = src.Comment,
                 Type = src.Type.ToString()
             };
@@ -66,7 +68,7 @@ namespace MarginTrading.AzureRepositories
             return entities.Select(MarginTradingAccountHistory.Create).OrderByDescending(item => item.Date);
         }
 
-        public async Task AddAsync(string accountId, string clientId, double amount, double balance, AccountHistoryType type, string comment = null)
+        public async Task AddAsync(string accountId, string clientId, double amount, double balance, double loan, AccountHistoryType type, string comment = null)
         {
             var entity = new MarginTradingAccountHistoryEntity
             {
@@ -74,6 +76,7 @@ namespace MarginTrading.AzureRepositories
                 RowKey = MarginTradingAccountHistoryEntity.GenerateRowKey(Guid.NewGuid().ToString("N")),
                 Amount = amount,
                 Balance = balance,
+                Loan = loan,
                 ClientId = clientId,
                 Comment = comment,
                 Type = type.ToString(),

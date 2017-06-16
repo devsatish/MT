@@ -555,7 +555,9 @@ namespace MarginTrading.Backend.Controllers
                 };
             }
 
-            await _accountManager.CreateDefaultAccounts(request.ClientId, request.TradingConditionsId);
+            var fundsTransref = request.UseLoan ? FundsTransferType.Loan : FundsTransferType.Direct;
+
+            await _accountManager.CreateDefaultAccounts(request.ClientId, fundsTransref, request.TradingConditionsId);
 
             return new InitAccountsResponse { Status = CreateAccountStatus.Created};
         }
@@ -564,7 +566,7 @@ namespace MarginTrading.Backend.Controllers
         [Route("marginTradingAccounts/add")]
         public async Task<IActionResult> AddMarginTradingAccount([FromBody]MarginTradingAccount account)
         {
-            await _accountManager.AddAccountAsync(account.ClientId, account.BaseAssetId, account.TradingConditionId);
+            await _accountManager.AddAccountAsync(account.ClientId, account.BaseAssetId, account.TradingConditionId, account.FundsTransfer);
             return Ok();
         }
 
